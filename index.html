@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wellness AI</title>
+  <meta name="description" content="Holistic wellness tracker with nutrition, hydration, mood, workouts, games, insights, and social-impact stories." />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="app-header" role="banner">
+    <div class="brand" aria-label="App branding">
+      <div class="logo" aria-hidden="true">💪</div>
+      <h1>Wellness AI</h1>
+    </div>
+
+    <nav class="tabs" role="navigation" aria-label="Primary">
+      <button class="tab active" data-tab="food">Food</button>
+      <button class="tab" data-tab="hydrate">Hydration & Mood</button>
+      <button class="tab" data-tab="wellness">Wellness</button>
+      <button class="tab" data-tab="workouts">Workouts</button>
+      <button class="tab" data-tab="games">Games</button>
+      <button class="tab" data-tab="echoes">Echoes of Change</button>
+      <button class="tab" data-tab="insights">Insights</button>
+      <button class="tab" data-tab="advice">AI Advice</button>
+    </nav>
+
+    <div class="actions">
+      <button id="themeToggle" title="Toggle theme" class="ghost" aria-pressed="false">🌙 Dark</button>
+      <button id="fontToggle" title="Toggle larger font" class="ghost" aria-pressed="false">A↕︎</button>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <!-- FOOD -->
+    <section id="food" class="panel show" aria-labelledby="food-h2">
+      <div class="card">
+        <h2 id="food-h2">Pick a food</h2>
+        <div class="row">
+          <select id="foodSelect" aria-label="Select a food to log">
+            <option value="">Loading foods…</option>
+          </select>
+        </div>
+        <div id="foodMeta" class="muted small" aria-live="polite"></div>
+      </div>
+
+      <div class="card">
+        <h2>Log a meal</h2>
+        <div id="selectedFood" class="pill pill-muted" aria-live="polite">No food selected</div>
+        <div class="row">
+          <label for="mealType">Meal</label>
+          <select id="mealType">
+            <option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option>
+          </select>
+          <label for="grams">Amount (grams)</label>
+          <input id="grams" type="number" inputmode="numeric" min="1" value="100" />
+          <button id="addFood">Add</button>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="flex-between">
+            <h3>Today’s Log</h3>
+            <div class="row">
+              <button id="clearToday" class="ghost">Clear Today</button>
+              <button id="resetWeekMeals" class="ghost">Reset Last 7 Days</button>
+            </div>
+          </div>
+          <div id="mealLog"></div>
+        </div>
+        <div class="card">
+          <h3>Totals</h3>
+          <div id="totals" class="totals"></div>
+          <canvas id="calChart" height="220" aria-label="Weekly calories chart" role="img"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- HYDRATION & MOOD -->
+    <section id="hydrate" class="panel" aria-labelledby="hyd-h2">
+      <div class="card">
+        <h2 id="hyd-h2">Hydration & Mood</h2>
+        <div class="row gap">
+          <button class="chip" data-water="250">+250 ml</button>
+          <button class="chip" data-water="500">+500 ml</button>
+          <button class="chip" data-water="750">+750 ml</button>
+        </div>
+        <div class="row">
+          <label for="waterMl">Custom (ml)</label>
+          <input id="waterMl" type="number" inputmode="numeric" min="0" />
+          <button id="addWater">Add water</button>
+        </div>
+        <div class="row">
+          <label for="moodSel">Mood</label>
+          <select id="moodSel" aria-label="Select mood">
+            <option>😊 Happy</option><option>😐 Neutral</option><option>😔 Sad</option><option>😩 Stressed</option>
+          </select>
+          <button id="saveMood">Save mood</button>
+        </div>
+
+        <div class="muted">Today’s water: <span id="todayWater">0</span> ml • Mood: <span id="todayMood">😐 Neutral</span></div>
+
+        <h3>Water entries</h3>
+        <div id="waterList" class="list small"></div>
+        <div class="row">
+          <button id="deleteLastWater" class="ghost">Delete last</button>
+          <button id="clearWater" class="ghost">Clear Today</button>
+          <button id="resetWeekWater" class="ghost">Reset Last 7 Days</button>
+        </div>
+
+        <div class="row">
+          <label for="waterTarget">Daily target (ml)</label>
+          <input id="waterTarget" type="number" inputmode="numeric" min="0" value="2000">
+          <button id="saveWaterTarget">Save target</button>
+          <label><input type="checkbox" id="hideZeroDays"> Hide zero-intake days</label>
+        </div>
+
+        <div class="progressWrap">
+          <div class="muted small">Today’s progress to target</div>
+          <div id="waterProgressBar" class="bar" aria-label="Hydration target progress">
+            <div id="waterProgressFill" class="bar-fill"></div>
+          </div>
+        </div>
+
+        <div class="chartInfo muted">
+          <strong>Chart axes:</strong> X-axis = each of the last 7 calendar days (or only days with entries if “hide zero days” is checked). Y-axis = total water intake (ml) per day. A dashed line marks your daily target.
+        </div>
+        <canvas id="waterChart" height="220" aria-label="Weekly water chart" role="img"></canvas>
+      </div>
+    </section>
+
+    <!-- WELLNESS -->
+    <section id="wellness" class="panel" aria-labelledby="wel-h2">
+      <div class="card">
+        <h2 id="wel-h2">Wellness</h2>
+        <div class="row">
+          <label for="sleepH">Sleep (h)</label><input id="sleepH" type="number" inputmode="numeric" min="0" max="24" />
+          <label for="stress">Stress (1–5)</label><input id="stress" type="number" inputmode="numeric" min="1" max="5" />
+          <label for="energy">Energy (1–5)</label><input id="energy" type="number" inputmode="numeric" min="1" max="5" />
+        </div>
+        <textarea id="notes" placeholder="Notes / symptoms (optional)"></textarea>
+        <div class="row">
+          <button id="saveWellness">Save wellness</button>
+          <button id="addDemoDay" class="ghost">Add history (sample)</button>
+          <button id="clearWellnessToday" class="ghost">Clear Today</button>
+          <button id="resetWeekWellness" class="ghost">Reset Last 7 Days</button>
+        </div>
+        <div id="wellnessList"></div>
+      </div>
+
+      <div class="card soft">
+        <h3>Weekly Wellness Log (Last 7 Days)</h3>
+        <div id="wellnessWeek" class="week-list"></div>
+      </div>
+    </section>
+
+    <!-- WORKOUTS -->
+    <section id="workouts" class="panel" aria-labelledby="wo-h2">
+      <div class="card">
+        <h2 id="wo-h2">Workouts</h2>
+        <div class="row">
+          <input id="exName" placeholder="Exercise (e.g., Push-ups, Squats, Plank)" />
+          <input id="exSets" type="number" inputmode="numeric" min="0" placeholder="Sets" />
+          <input id="exReps" type="number" inputmode="numeric" min="0" placeholder="Reps" />
+          <input id="exMins" type="number" inputmode="numeric" min="0" placeholder="Minutes" />
+          <button id="addExercise">Add to log</button>
+        </div>
+        <div class="muted small">Leave reps blank for timed exercises, or minutes blank for reps-based.</div>
+
+        <h3>Today’s Workout</h3>
+        <div id="workoutLog" class="list"></div>
+        <div class="row">
+          <button id="clearWorkout" class="ghost">Clear Today</button>
+          <button id="resetWeekWorkout" class="ghost">Reset Last 7 Days</button>
+        </div>
+
+        <h3>Quick Plans</h3>
+        <div class="row">
+          <button class="chip plan-add" data-plan="Beginner Full-body">Beginner Full-body</button>
+          <button class="chip plan-add" data-plan="Core Booster">Core Booster</button>
+          <button class="chip plan-add" data-plan="Cardio Intervals">Cardio Intervals</button>
+        </div>
+        <div id="planList" class="list"></div>
+      </div>
+
+      <div class="card soft">
+        <h3>Weekly Workout Log (Last 7 Days)</h3>
+        <div id="workoutWeek" class="week-list"></div>
+      </div>
+    </section>
+
+    <!-- GAMES -->
+    <section id="games" class="panel" aria-labelledby="games-h2">
+      <div class="card">
+        <div class="flex-between">
+          <h2 id="games-h2">Games</h2>
+          <div class="row">
+            <button id="exportGamesJSON" class="ghost">Export JSON</button>
+            <button id="exportGamesCSV" class="ghost">Export CSV</button>
+          </div>
+        </div>
+
+        <!-- Macro Match -->
+        <div class="game">
+          <h3>Macro Match</h3>
+          <p class="muted small">Drag each food card into the correct bin based on its dominant macro (per-100g).</p>
+          <div class="row">
+            <button id="macroNewRound">New round</button>
+            <span class="muted small" id="macroScore">Score: 0/0</span>
+            <span class="muted small" id="macroBest">Best acc: –</span>
+          </div>
+          <div id="macroZone" class="macro-zone">
+            <div id="macroCards" class="macro-cards" aria-live="polite"></div>
+            <div class="macro-bins">
+              <div class="macro-bin" data-bin="protein" tabindex="0" aria-label="Protein bin">Protein</div>
+              <div class="macro-bin" data-bin="carbs" tabindex="0" aria-label="Carbs bin">Carbs</div>
+              <div class="macro-bin" data-bin="fat" tabindex="0" aria-label="Fat bin">Fat</div>
+            </div>
+          </div>
+        </div>
+
+        <hr class="spacer" />
+
+        <!-- Focus Zap -->
+        <div class="game">
+          <h3>Focus Zap</h3>
+          <p class="muted small">Wait for green, then click FAST. Don’t click early!</p>
+          <div class="row">
+            <button id="focusStart">Start</button>
+            <span id="focusState" class="pill pill-muted">Idle</span>
+            <span class="muted small">Last: <span id="focusLast">–</span> ms • Avg (5): <span id="focusAvg">–</span> ms</span>
+          </div>
+          <div id="focusPad" class="focus-pad" role="button" aria-label="Reaction pad">Wait…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ECHOES OF CHANGE -->
+    <section id="echoes" class="panel" aria-labelledby="echoes-h2">
+      <div class="card">
+        <h2 id="echoes-h2">Echoes of Change</h2>
+        <p class="muted small">Choose how to act in short social-impact scenarios. Your choices shift <strong>Empathy</strong>, <strong>Equity</strong>, and <strong>Awareness</strong>.</p>
+
+        <div class="row">
+          <select id="echoScenarioSel" aria-label="Select scenario">
+            <option value="community_fund">Community Fund</option>
+            <option value="friend_confide">Friend in Crisis</option>
+            <option value="campus_event">Campus Event Accessibility</option>
+          </select>
+          <button id="echoStart">Start Scenario</button>
+          <button id="echoReset" class="ghost">Reset</button>
+        </div>
+
+        <div id="echoStory" class="echo-story"></div>
+        <div class="echo-stats">
+          <div class="meter"><span>Empathy</span><div class="bar"><div id="echoEmp" class="fill"></div></div></div>
+          <div class="meter"><span>Equity</span><div class="bar"><div id="echoEq" class="fill"></div></div></div>
+          <div class="meter"><span>Awareness</span><div class="bar"><div id="echoAw" class="fill"></div></div></div>
+        </div>
+
+        <div id="echoSummary" class="echo-summary"></div>
+      </div>
+    </section>
+
+    <!-- INSIGHTS -->
+    <section id="insights" class="panel" aria-labelledby="ins-h2">
+      <div class="card">
+        <h2 id="ins-h2">Weekly Insights</h2>
+        <div class="grid-2">
+          <div class="card soft">
+            <h3>Hydration</h3>
+            <canvas id="insHyd" height="180" aria-label="Hydration last 7 days"></canvas>
+            <div id="insHydText" class="muted small"></div>
+          </div>
+          <div class="card soft">
+            <h3>Calories</h3>
+            <canvas id="insCal" height="180" aria-label="Calories last 7 days"></canvas>
+            <div id="insCalText" class="muted small"></div>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="card soft">
+            <h3>Sleep / Stress</h3>
+            <canvas id="insSleep" height="180" aria-label="Sleep trend"></canvas>
+            <div id="insSleepText" class="muted small"></div>
+          </div>
+          <div class="card soft">
+            <h3>Workout Consistency</h3>
+            <canvas id="insWo" height="180" aria-label="Workouts trend"></canvas>
+            <div id="insWoText" class="muted small"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Summary</h3>
+          <p id="insNarrative"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI ADVICE (MOCK) -->
+    <section id="advice" class="panel" aria-labelledby="ai-h2">
+      <div class="card">
+        <h2 id="ai-h2">AI Advice</h2>
+        <div class="row">
+          <label for="goal">Goal</label>
+          <select id="goal">
+            <option value="lose">lose</option>
+            <option value="maintain">maintain</option>
+            <option value="gain">gain</option>
+          </select>
+          <label for="activity">Activity</label>
+          <select id="activity">
+            <option value="low">low</option>
+            <option value="moderate">moderate</option>
+            <option value="high">high</option>
+          </select>
+          <label for="fitness">Fitness</label>
+          <select id="fitness">
+            <option value="beginner">beginner</option>
+            <option value="intermediate">intermediate</option>
+            <option value="advanced">advanced</option>
+          </select>
+        </div>
+        <div class="row">
+          <button id="genAdvice">Generate advice</button>
+          <button id="genAdvice2" class="ghost">Generate another</button>
+        </div>
+        <div id="adviceCards" class="grid-2"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="muted center" role="contentinfo">
+    Data stays in your browser (localStorage).
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
